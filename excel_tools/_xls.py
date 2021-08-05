@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import xlrd
-from xlrd.sheet import Cell
+from xlrd.sheet import Cell as XLCell
 
 import os
 from typing import Optional, Union, Generator, List, Any
 
 from excel_tools.base_reader import ExcelBaseObject
+from excel_tools.utils import get_column_letter, xls_float_correct, Cell
 
 
 class XlsReader(ExcelBaseObject):
@@ -13,6 +14,7 @@ class XlsReader(ExcelBaseObject):
                  sheet: Union[int, str, None] = 0):
         """
         xls读取类,仅可以读取 .xls格式的表格
+        注意：所有对表的索引都从1,1开始。sheet:A1=(row=1,col=1)
 
         Args:
             name(str): 文件名
@@ -22,7 +24,7 @@ class XlsReader(ExcelBaseObject):
             sheet(int,str): 需要读取的工作表(表名或表索引)
         """
         super(XlsReader, self).__init__(name, path, ignore_lines)
-        self._xl = xlrd.open_workbook(os.path.join(self._path, self._name))
+        self._xl = xlrd.open_workbook(os.path.join(self._path, self._name), formatting_info=True)
         if isinstance(sheet, str):
             self._sheet = self._xl.sheet_by_name(sheet)
         elif isinstance(sheet, int):
@@ -40,11 +42,11 @@ class XlsReader(ExcelBaseObject):
         """
         return self._sheet.name
 
-    def get_rows(self) -> Generator[List[Cell], Any, None]:
+    def get_rows(self) -> Generator[List[XLCell], Any, None]:
         """ 获取所有列的单元格 """
         return self._sheet.get_rows()
 
-    def get_row(self, rowx: int) -> List[Cell]:
+    def get_row(self, rowx: int) -> List[XLCell]:
         """
         获取对应行的所有单元格
 
@@ -54,7 +56,9 @@ class XlsReader(ExcelBaseObject):
         Returns:
             返回这一行所有单元格
         """
-        return self._sheet.row(rowx)
+        rowx = rowx - 1
+        return [Cell(row=rowx, column=col + 1, worksheet=self._sheet, value=v.value, ctype=v.ctype)
+                for col, v in enumerate(self._sheet.row(rowx))]
 
     def get_row_len(self, rowx: int) -> int:
         """
@@ -66,7 +70,7 @@ class XlsReader(ExcelBaseObject):
         Returns:
             有效单元格数量
         """
-        return self._sheet.row_len(rowx)
+        return len(self.get_row(rowx))
 
     def get_row_value(self, rowx: int, start_colx: Optional[int] = 0, end_colx: int = None) -> List[Any]:
         """
@@ -80,8 +84,9 @@ class XlsReader(ExcelBaseObject):
         Returns:
             返回这一行所有数据组成的列表
         """
-        return self._sheet.row_values(rowx, start_colx, end_colx)
+        return [v.value for v in self.get_row(rowx)][start_colx:end_colx]
 
+    # TODO: get_col
     def get_col_value(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Any]:
         """
         获取表格内对应列中的所有单元格的数据
@@ -94,7 +99,7 @@ class XlsReader(ExcelBaseObject):
         Returns:
             返回这一列所有数据组成的列表
         """
-        return self._sheet.col_values(colx, start_rowx, end_rowx)
+        return self._sheet.col_values(colx - 1, start_rowx, end_rowx)
 
     def get_cell(self, rowx, cols) -> Cell:
         """
@@ -108,9 +113,10 @@ class XlsReader(ExcelBaseObject):
             行列对应单元格
         """
         rowx = rowx + self._ignore_lines
-        return self._sheet.cell(rowx, cols)
+        cell = self._sheet.cell(rowx - 1, cols - 1)
+        return Cell(worksheet=self._sheet, row=rowx, column=cols, value=cell.value, ctype=cell.ctype)
 
-    def get_cell_value(self, rowx, cols):
+    def get_cell_value(self, rowx, cols) -> Any:
         """
         获取单元格内数据
 

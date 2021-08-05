@@ -123,4 +123,4 @@ class XlsxReader(ExcelBaseObject):
             行列对应单元格
         """
         rowx = rowx + self._ignore_lines
-        return self._sheet.cell(rowx, cols)
+        return self._sheet.cell(rowx, cols).value
