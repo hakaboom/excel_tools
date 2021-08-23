@@ -11,6 +11,18 @@ class ExcelBaseObject(object):
         self._xl = None
         self._sheet = None
 
+    @property
+    def sheet(self):
+        return self._sheet
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def path(self) -> str:
+        return self._path
+
     def get_rows(self):
         """ 获取所有列的单元格 """
 
@@ -68,7 +80,7 @@ class ExcelBaseObject(object):
             返回这一列所有数据组成的列表
         """
 
-    def get_cell(self, rowx, colx):
+    def get_cell(self, rowx: int, colx: int):
         """
         获取单元格
 
@@ -80,7 +92,7 @@ class ExcelBaseObject(object):
             行列对应单元格
         """
 
-    def get_cell_value(self, rowx, colx):
+    def get_cell_value(self, rowx: int, colx: int):
         """
         获取单元格内数据
 

@@ -112,7 +112,7 @@ class XlsReader(ExcelBaseObject):
         """
         return self._sheet.col_values(colx - 1, start_rowx, end_rowx)
 
-    def get_cell(self, rowx, colx) -> Cell:
+    def get_cell(self, rowx: int, colx: int) -> Cell:
         """
         获取单元格
 
@@ -126,7 +126,7 @@ class XlsReader(ExcelBaseObject):
         cell = self._sheet.cell(rowx - 1, colx - 1)
         return Cell(worksheet=self._sheet, row=rowx, column=colx, value=cell.value, ctype=cell.ctype)
 
-    def get_cell_value(self, rowx, colx) -> Any:
+    def get_cell_value(self, rowx: int, colx: int) -> Any:
         """
         获取单元格内数据
 

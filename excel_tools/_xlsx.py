@@ -111,7 +111,7 @@ class XlsxReader(ExcelBaseObject):
         col = self.get_col(colx)[start_rowx:end_rowx]
         return [cell.value for cell in col]
 
-    def get_cell(self, rowx, colx) -> Cell:
+    def get_cell(self, rowx: int, colx: int) -> Cell:
         """
         获取单元格
 
@@ -123,3 +123,16 @@ class XlsxReader(ExcelBaseObject):
             行列对应单元格
         """
         return self._sheet.cell(rowx, colx)
+
+    def get_cell_value(self, rowx: int, colx: int) -> Any:
+        """
+        获取单元格内数据
+
+        Args:
+            rowx: 列数
+            colx: 行数
+
+        Returns:
+            行列对应单元格中的数据
+        """
+        return self.get_cell(rowx, colx).value
