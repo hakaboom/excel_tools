@@ -10,8 +10,7 @@ from excel_tools.utils import get_column_letter, xls_float_correct, Cell
 
 
 class XlsReader(ExcelBaseObject):
-    def __init__(self, name: str, path: Optional[str] = '', ignore_lines: Optional[int] = 0,
-                 sheet: Union[int, str, None] = 0):
+    def __init__(self, name: str, path: Optional[str] = '', sheet: Union[int, str, None] = 0):
         """
         xls读取类,仅可以读取 .xls格式的表格
         注意：所有对表的索引都从1,1开始。sheet:A1=(row=1,col=1)
@@ -19,11 +18,9 @@ class XlsReader(ExcelBaseObject):
         Args:
             name(str): 文件名
             path(str): 文件路径
-            ignore_lines(int): 读取表格时,忽略读取的行数。
-                例：row=3,ignore_line=2,那么最后读取的就是第row+ignore_lines=5行
             sheet(int,str): 需要读取的工作表(表名或表索引)
         """
-        super(XlsReader, self).__init__(name, path, ignore_lines)
+        super(XlsReader, self).__init__(name, path)
         self._xl = xlrd.open_workbook(os.path.join(self._path, self._name), formatting_info=True)
         if isinstance(sheet, str):
             self._sheet = self._xl.sheet_by_name(sheet)
@@ -86,7 +83,21 @@ class XlsReader(ExcelBaseObject):
         """
         return [v.value for v in self.get_row(rowx)][start_colx:end_colx]
 
-    # TODO: get_col
+    def get_col(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Cell]:
+        """
+        获取表格内对应列中的所有单元格
+
+        Args:
+            colx: 行数
+            start_rowx: 左切片行数
+            end_rowx: 右切片行数
+
+        Returns:
+            返回这一列所有数据组成的列表
+        """
+        return [Cell(worksheet=self._sheet, row=row + 1 + start_rowx, column=colx)
+                for row, value in enumerate(self.get_col_value(colx, start_rowx, end_rowx))]
+
     def get_col_value(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Any]:
         """
         获取表格内对应列中的所有单元格的数据
@@ -101,30 +112,29 @@ class XlsReader(ExcelBaseObject):
         """
         return self._sheet.col_values(colx - 1, start_rowx, end_rowx)
 
-    def get_cell(self, rowx, cols) -> Cell:
+    def get_cell(self, rowx, colx) -> Cell:
         """
         获取单元格
 
         Args:
             rowx: 列数
-            cols: 行数
+            colx: 行数
 
         Returns:
             行列对应单元格
         """
-        rowx = rowx + self._ignore_lines
-        cell = self._sheet.cell(rowx - 1, cols - 1)
-        return Cell(worksheet=self._sheet, row=rowx, column=cols, value=cell.value, ctype=cell.ctype)
+        cell = self._sheet.cell(rowx - 1, colx - 1)
+        return Cell(worksheet=self._sheet, row=rowx, column=colx, value=cell.value, ctype=cell.ctype)
 
-    def get_cell_value(self, rowx, cols) -> Any:
+    def get_cell_value(self, rowx, colx) -> Any:
         """
         获取单元格内数据
 
         Args:
             rowx: 列数
-            cols: 行数
+            colx: 行数
 
         Returns:
             行列对应单元格中的数据
         """
-        return self.get_cell(rowx, cols).value
+        return self.get_cell(rowx, colx).value

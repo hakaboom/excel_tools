@@ -10,19 +10,17 @@ from excel_tools.base_reader import ExcelBaseObject
 
 
 class XlsxReader(ExcelBaseObject):
-    def __init__(self, name: str, path: Optional[str] = '', ignore_lines: Optional[int] = 0,
-                 sheet: Union[int, str, None] = 0):
+    def __init__(self, name: str, path: Optional[str] = '', sheet: Union[int, str, None] = 0):
         """
         xlsx读取类，可以读取以下格式的表格：xlsx
 
         Args:
             name(str): 文件名
             path(str): 文件路径
-            ignore_lines(int): 读取表格时,忽略读取的行数。
-                例：row=3,ignore_line=2,那么最后读取的就是第row+ignore_lines=5行
+
             sheet(int,str): 需要读取的工作表(表名或表索引)
         """
-        super(XlsxReader, self).__init__(name, path, ignore_lines)
+        super(XlsxReader, self).__init__(name, path, )
         self._xl = openpyxl.load_workbook(os.path.join(self._path, self._name))
         if isinstance(sheet, str):
             self._sheet = self._xl[sheet]
@@ -84,17 +82,19 @@ class XlsxReader(ExcelBaseObject):
         row = self.get_row(rowx)[start_colx:end_colx]
         return [cell.value for cell in row]
 
-    def get_col(self, colx) -> Tuple[Cell]:
+    def get_col(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> Tuple[Cell]:
         """
         获取表格内对应列中的所有单元格
 
         Args:
             colx: 行数
+            start_rowx: 左切片行数
+            end_rowx: 右切片行数
 
         Returns:
             返回这一列所有数据组成的列表
         """
-        return self._sheet[get_column_letter(colx)]
+        return self._sheet[get_column_letter(colx)][start_rowx:end_rowx]
 
     def get_col_value(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Any]:
         """
@@ -111,16 +111,15 @@ class XlsxReader(ExcelBaseObject):
         col = self.get_col(colx)[start_rowx:end_rowx]
         return [cell.value for cell in col]
 
-    def get_cell(self, rowx, cols) -> Cell:
+    def get_cell(self, rowx, colx) -> Cell:
         """
         获取单元格
 
         Args:
             rowx: 列数
-            cols: 行数
+            colx: 行数
 
         Returns:
             行列对应单元格
         """
-        rowx = rowx + self._ignore_lines
-        return self._sheet.cell(rowx, cols).value
+        return self._sheet.cell(rowx, colx)

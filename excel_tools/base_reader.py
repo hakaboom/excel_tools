@@ -4,10 +4,9 @@ from typing import Optional, Union
 
 
 class ExcelBaseObject(object):
-    def __init__(self, name: str, path: Optional[str] = '', ignore_lines: Optional[int] = 0):
+    def __init__(self, name: str, path: Optional[str] = ''):
         self._name = name
         self._path = path
-        self._ignore_lines = ignore_lines
 
         self._xl = None
         self._sheet = None
@@ -50,7 +49,7 @@ class ExcelBaseObject(object):
             返回这一行所有数据组成的列表
         """
 
-    def get_cols(self):
+    def get_colx(self):
         """ 获取所有行的单元格 """
 
     def get_col(self, colx: int):
@@ -69,25 +68,25 @@ class ExcelBaseObject(object):
             返回这一列所有数据组成的列表
         """
 
-    def get_cell(self, rowx, cols):
+    def get_cell(self, rowx, colx):
         """
         获取单元格
 
         Args:
             rowx: 列数
-            cols: 行数
+            colx: 行数
 
         Returns:
             行列对应单元格
         """
 
-    def get_cell_value(self, rowx, cols):
+    def get_cell_value(self, rowx, colx):
         """
         获取单元格内数据
 
         Args:
             rowx: 列数
-            cols: 行数
+            colx: 行数
 
         Returns:
             行列对应单元格中的数据
