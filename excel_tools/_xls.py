@@ -85,7 +85,7 @@ class XlsReader(ExcelBaseObject):
         ret = []
         col = self._sheet.col_slice(colx=colx - 1, start_rowx=start_rowx, end_rowx=end_rowx)
         for row, cell in enumerate(col):
-            if row >= self.max_row:
+            if row + start_rowx >= self.max_row:
                 break
             ret.append(Cell(worksheet=self._sheet, row=row + 1 + start_rowx, column=colx,
                             value=cell.value, ctype=cell.ctype))
