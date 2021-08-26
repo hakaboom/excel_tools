@@ -3,7 +3,7 @@ import xlrd
 from xlrd.sheet import Cell as XLCell
 
 import os
-from typing import Optional, Union, Generator, List, Any
+from typing import Optional, Union, Generator, List, Any, Tuple
 
 from excel_tools.read.base_reader import ExcelBaseObject
 from excel_tools.utils import Cell
@@ -69,24 +69,32 @@ class XlsReader(ExcelBaseObject):
     def get_rows(self) -> Generator[List[XLCell], Any, None]:
         return self._sheet.get_rows()
 
-    def get_row(self, rowx: int) -> List[XLCell]:
-        rowx = rowx - 1
+    def get_row(self, rowx: int, start_colx: Optional[int] = 1, end_colx: int = None) -> Tuple[XLCell, ...]:
+        end_colx = end_colx if end_colx is not None and end_colx <= self.max_column else self.max_column
+        row = self._sheet.row(rowx - 1)[(start_colx - 1):end_colx]
 
-        return [Cell(row=rowx, column=col + 1, worksheet=self._sheet, value=v.value, ctype=v.ctype)
-                for col, v in enumerate(self._sheet.row(rowx)) if col < self.max_column]
+        return tuple([Cell(row=rowx, column=col + 1, worksheet=self._sheet, value=v.value, ctype=v.ctype)
+                     for col, v in enumerate(row)])
 
-    def get_row_len(self, rowx: int) -> int:
-        return len(self.get_row(rowx=rowx))
+    def get_row_len(self, rowx: int, start_colx: Optional[int] = 1, end_colx: int = None) -> int:
+        return len(self.get_row(rowx=rowx, start_colx=start_colx, end_colx=end_colx))
 
-    def get_row_value(self, rowx: int, start_colx: Optional[int] = 0, end_colx: int = None) -> List[Any]:
-        return [v.value for v in self.get_row(rowx=rowx)][start_colx:end_colx]
+    def get_row_value(self, rowx: int, start_colx: Optional[int] = 1, end_colx: int = None) -> List[Any]:
+        return [cell.value for cell in self.get_row(rowx=rowx, start_colx=start_colx, end_colx=end_colx)]
 
     def get_col(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Cell]:
-        return [Cell(worksheet=self._sheet, row=row + 1 + start_rowx, column=colx)
-                for row, value in enumerate(self.get_col_value(colx, start_rowx, end_rowx))]
+        ret = []
+        col = self._sheet.col_slice(colx=colx - 1, start_rowx=start_rowx, end_rowx=end_rowx)
+        for row, cell in enumerate(col):
+            if row + start_rowx >= self.max_row:
+                break
+            ret.append(Cell(worksheet=self._sheet, row=row + 1 + start_rowx, column=colx,
+                            value=cell.value, ctype=cell.ctype))
+
+        return ret
 
     def get_col_value(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Any]:
-        return self._sheet.col_values(colx - 1, start_rowx, end_rowx)
+        return [cell.value for cell in self.get_col(colx, start_rowx, end_rowx)]
 
     def get_cell(self, rowx: int, colx: int) -> Cell:
         cell = self._sheet.cell(rowx - 1, colx - 1)

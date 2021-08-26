@@ -74,17 +74,31 @@ class Cell(object):
 
     def _bind_value(self, value):
         if self.data_type == 0:
+            # empty string ''
             value = None
+
         elif self.data_type == 1:
+            # a Unicode string
             value = str(value)
+
         elif self.data_type == 2:
-            pass
-        elif self.data_type == 3:
+            # float
             value = xls_float_correct(value)
+
+        elif self.data_type == 3:
+            # float
+            value = xls_float_correct(value)
+
         elif self.data_type == 4:
+            # int; 1 means TRUE, 0 means FALSE
             value = bool(value)
-        elif self.data_type == 5:
+
+        elif self.data_type == 5:  # float
+            # XL_CELL_ERROR： error_text_from_code
             pass
+        elif self.data_type == 6:  # float
+            # empty string ''
+            value = None
 
         self._value = value
 

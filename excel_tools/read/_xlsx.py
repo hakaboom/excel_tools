@@ -63,23 +63,27 @@ class XlsxReader(ExcelBaseObject):
     def get_rows(self) -> Generator[Tuple[Cell], Any, None]:
         return self._sheet.rows
 
-    def get_row(self, rowx: int) -> Tuple[Cell]:
-        gen = self._sheet.iter_rows(min_row=rowx, max_row=rowx, min_col=1, max_col=self.max_column)
-        return tuple(gen)[0]
+    def get_row(self, rowx: int, start_colx: Optional[int] = 0, end_colx: int = None) -> Tuple[Cell]:
+        end_colx = end_colx if end_colx is not None and end_colx <= self.max_column else self.max_column
+        return tuple(self._sheet.iter_rows(min_row=rowx, max_row=rowx, min_col=start_colx, max_col=end_colx))[0]
 
-    def get_row_len(self, rowx: int) -> int:
-        return len(self.get_row(rowx=rowx))
+    def get_row_len(self, rowx: int, start_colx: Optional[int] = 0, end_colx: int = None) -> int:
+        return len(self.get_row(rowx=rowx, start_colx=start_colx, end_colx=end_colx))
 
     def get_row_value(self, rowx: int, start_colx: Optional[int] = 0, end_colx: int = None) -> List[Any]:
-        row = self.get_row(rowx=rowx)[start_colx:end_colx]
-        return [cell.value for cell in row]
+        return [cell.value for cell in self.get_row(rowx=rowx, start_colx=start_colx, end_colx=end_colx)]
 
     def get_col(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> Tuple[Cell]:
+        if end_rowx:
+            if end_rowx > self.max_row:
+                end_rowx = self.max_row
+        else:
+            end_rowx = self.max_row
+
         return self._sheet[get_column_letter(colx)][start_rowx:end_rowx]
 
     def get_col_value(self, colx: int, start_rowx: Optional[int] = 0, end_rowx: Optional[int] = None) -> List[Any]:
-        col = self.get_col(colx=colx)[start_rowx:end_rowx]
-        return [cell.value for cell in col]
+        return [cell.value for cell in self.get_col(colx=colx, end_rowx=end_rowx, start_rowx=start_rowx)]
 
     def get_cell(self, rowx: int, colx: int) -> Cell:
         return self._sheet.cell(rowx, colx)
