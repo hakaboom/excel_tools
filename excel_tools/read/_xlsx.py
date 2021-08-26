@@ -6,7 +6,7 @@ from openpyxl.cell import Cell  # openpyxl == 3.0.7,需要去__init__文件中im
 import os
 from typing import Optional, Union, Generator, List, Tuple, Any
 
-from excel_tools.base_reader import ExcelBaseObject
+from excel_tools.read.base_reader import ExcelBaseObject
 
 
 class XlsxReader(ExcelBaseObject):
@@ -21,9 +21,10 @@ class XlsxReader(ExcelBaseObject):
             sheet(int,str): 需要读取的工作表(表名或表索引)
         """
         super(XlsxReader, self).__init__(*args, **kwargs)
-        self._xl = openpyxl.load_workbook(os.path.join(self._path, self._name))
-
         self.set_sheet(sheet=sheet)
+
+    def open_xl(self):
+        self._xl = openpyxl.load_workbook(os.path.join(self._path, self._name))
 
     def set_sheet(self, sheet: Union[int, str, None] = 0) -> None:
         if isinstance(sheet, str):

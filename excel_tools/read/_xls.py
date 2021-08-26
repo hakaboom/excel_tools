@@ -5,8 +5,8 @@ from xlrd.sheet import Cell as XLCell
 import os
 from typing import Optional, Union, Generator, List, Any
 
-from excel_tools.base_reader import ExcelBaseObject
-from excel_tools.utils import get_column_letter, xls_float_correct, Cell
+from excel_tools.read.base_reader import ExcelBaseObject
+from excel_tools.utils import Cell
 
 
 class XlsReader(ExcelBaseObject):
@@ -21,9 +21,10 @@ class XlsReader(ExcelBaseObject):
             sheet(int,str): 需要读取的工作表(表名或表索引)
         """
         super(XlsReader, self).__init__(*args, **kwargs)
-        self._xl = xlrd.open_workbook(os.path.join(self._path, self._name), formatting_info=True)
-
         self.set_sheet(sheet)
+
+    def open_xl(self):
+        self._xl = xlrd.open_workbook(os.path.join(self._path, self._name), formatting_info=True)
 
     def set_sheet(self, sheet: Union[int, str, None] = 0) -> None:
         if isinstance(sheet, str):

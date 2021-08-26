@@ -11,6 +11,12 @@ class ExcelBaseObject(object):
         self._xl = None
         self._sheet = None
 
+        self.open_xl()
+
+    def open_xl(self):
+        """ 初始化表格 """
+        raise NotImplementedError
+
     def set_sheet(self, sheet: Union[int, str, None] = 0) -> None:
         """ 设置表格读取的工作簿 """
         raise NotImplementedError
