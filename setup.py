@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='excel_tools',
-    version='1.0.01',
+    version='1.0.1',
     author='hakaboom',
     author_email='1534225986@qq.com',
     license='Apache License 2.0',

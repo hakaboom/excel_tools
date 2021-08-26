@@ -73,7 +73,7 @@ class XlsReader(ExcelBaseObject):
         row = self._sheet.row(rowx - 1)[(start_colx - 1):end_colx]
 
         return tuple([Cell(row=rowx, column=col + 1, worksheet=self._sheet, value=v.value, ctype=v.ctype)
-                for col, v in enumerate(row)])
+                     for col, v in enumerate(row)])
 
     def get_row_len(self, rowx: int, start_colx: Optional[int] = 1, end_colx: int = None) -> int:
         return len(self.get_row(rowx=rowx, start_colx=start_colx, end_colx=end_colx))

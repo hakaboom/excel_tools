@@ -67,6 +67,8 @@ class ExcelBaseObject(object):
 
         Args:
             rowx: 行数
+            start_colx: 左切片列数
+            end_colx: 右切片列数
 
         Returns:
             返回这一行所有单元格
@@ -79,6 +81,8 @@ class ExcelBaseObject(object):
 
         Args:
             rowx: 行数
+            start_colx: 左切片列数
+            end_colx: 右切片列数
 
         Returns:
             有效单元格数量
