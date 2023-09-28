@@ -16,7 +16,7 @@ def read_xl(name: str, path: Optional[str] = '', ignore_lines: Optional[int] = 0
     """
     if os.path.splitext(name)[1] == '.xls':
         return XlsReader(name=name, path=path, ignore_lines=ignore_lines, sheet=sheet)
-    elif os.path.splitext(name)[1] == '.xlsx':
+    elif os.path.splitext(name)[1] == '.xlsx' or os.path.splitext(name)[1] == '.xlsm':
         return XlsxReader(name=name, path=path, ignore_lines=ignore_lines, sheet=sheet)
     else:
         raise ValueError(f"无法读取'{name}', 路径='{path}'")
